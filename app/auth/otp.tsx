@@ -59,7 +59,7 @@ const OtpScreen = () => {
         <View style={{ alignItems: "center", width: "100%" }}>
           <Text style={{ fontSize: 18, textAlign: "center" }}>
             Don’t get OTP?{" "}
-            <Text onPress={() => router.push("/auth/register")} style={{ color: "#F86241", borderBottomWidth: 2 }}>
+            <Text onPress={() => router.push("/auth/pass_change")} style={{ color: "#F86241", borderBottomWidth: 2 }}>
               Resend
             </Text>
           </Text>
