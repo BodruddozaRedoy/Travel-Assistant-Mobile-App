@@ -1,13 +1,12 @@
-import { StyleSheet, Text, TextInput, View, TouchableOpacity } from "react-native";
+import { Alert, StyleSheet, Text, TextInput, View, TouchableOpacity } from "react-native";
 import React, { useState } from "react";
 import { router } from "expo-router";
 import AntDesign from "@expo/vector-icons/AntDesign";
-import Entypo from "@expo/vector-icons/Entypo";
-import Feather from '@expo/vector-icons/Feather';
+import Feather from "@expo/vector-icons/Feather";
 
-const loginScreen = () => {
-    const [showPassword, setShowPassword] = useState(false)
-    const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+const LoginScreen = () => {
+    const [showPassword, setShowPassword] = useState(false);
+    const [rememberMe, setRememberMe] = useState(false);
 
     return (
         <View style={styles.container}>
@@ -39,6 +38,27 @@ const loginScreen = () => {
                         style={styles.eyeIcon}
                         onPress={() => setShowPassword(!showPassword)}
                     />
+                </View>
+
+                <View style={styles.optionsRow}>
+                    <TouchableOpacity
+                        style={styles.rememberContainer}
+                        onPress={() => setRememberMe((prev) => !prev)}
+                        activeOpacity={0.7}
+                    >
+                        <View style={[styles.checkbox, rememberMe && styles.checkboxSelected]}>
+                            {rememberMe && <Feather name="check" size={14} color="#fff" />}
+                        </View>
+                        <Text style={styles.rememberText}>Remember me</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        onPress={() =>
+                            Alert.alert("Forgot password", "Password reset will be available soon.")
+                        }
+                        activeOpacity={0.7}
+                    >
+                        <Text style={styles.forgotText}>Forgot Password?</Text>
+                    </TouchableOpacity>
                 </View>
 
 
@@ -80,7 +100,7 @@ const loginScreen = () => {
     )
 }
 
-export default loginScreen
+export default LoginScreen
 
 const styles = StyleSheet.create({
     container: {
@@ -127,6 +147,42 @@ const styles = StyleSheet.create({
         position: "absolute",
         right: 15,
         top: 42
+    },
+    optionsRow: {
+        width: "100%",
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "space-between",
+        marginTop: -5
+    },
+    rememberContainer: {
+        flexDirection: "row",
+        alignItems: "center"
+    },
+    rememberText: {
+        color: "#2c2d30",
+        fontSize: 14,
+        fontWeight: 600
+    },
+    checkbox: {
+        width: 20,
+        height: 20,
+        borderRadius: 5,
+        borderWidth: 1.5,
+        borderColor: "#6a707c",
+        justifyContent: "center",
+        alignItems: "center",
+        marginRight: 8,
+        backgroundColor: "transparent"
+    },
+    checkboxSelected: {
+        backgroundColor: "#F86241",
+        borderColor: "#F86241"
+    },
+    forgotText: {
+        color: "#F86241",
+        fontSize: 14,
+        fontWeight: "500"
     },
     registerBtn: {
         backgroundColor: "#F86241",
