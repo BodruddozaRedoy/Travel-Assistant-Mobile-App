@@ -1,22 +1,43 @@
-import { NativeSyntheticEvent, StyleSheet, Text, TextInput, TextInputKeyPressEventData, View } from "react-native";
-import React, { useEffect, useRef, useState } from "react";
-import { router } from "expo-router";
-import AntDesign from '@expo/vector-icons/AntDesign';
-import { Picker } from '@react-native-picker/picker';
-import { Dropdown } from 'react-native-element-dropdown';
-import { Calendar, CalendarList, Agenda } from 'react-native-calendars';
-import CalendarPicker from "react-native-calendar-picker";
+import { StyleSheet, Text, View, TouchableOpacity, Image, Dimensions } from "react-native";
+import React, { useMemo, useRef, useState } from "react";
+import ImageView from "react-native-image-viewing";
+import { useSharedValue } from "react-native-reanimated";
+import Carousel, {
+    ICarouselInstance,
+    Pagination,
+} from "react-native-reanimated-carousel";
 
-const data = [
-    { label: 'Item 1', value: '1' },
-    { label: 'Item 2', value: '2' },
-    { label: 'Item 3', value: '3' },
-    { label: 'Item 4', value: '4' },
-    { label: 'Item 5', value: '5' }, 
-    { label: 'Item 6', value: '6' },
-    { label: 'Item 7', value: '7' },
-    { label: 'Item 8', value: '8' },
+// const data = [
+//     { label: 'Item 1', value: '1' },
+//     { label: 'Item 2', value: '2' },
+//     { label: 'Item 3', value: '3' },
+//     { label: 'Item 4', value: '4' },
+//     { label: 'Item 5', value: '5' },
+//     { label: 'Item 6', value: '6' },
+//     { label: 'Item 7', value: '7' },
+//     { label: 'Item 8', value: '8' },
+// ];
+
+const images = [
+    {
+        uri: "https://images.unsplash.com/photo-1571501679680-de32f1e7aad4",
+    },
+    {
+        uri: "https://images.unsplash.com/photo-1573273787173-0eb81a833b34",
+    },
+    {
+        uri: "https://images.unsplash.com/photo-1569569970363-df7b6160d111",
+    },
+    {
+        uri: "https://images.unsplash.com/photo-1569569970363-df7b6160d111",
+    },
+    {
+        uri: "https://images.unsplash.com/photo-1569569970363-df7b6160d111",
+    },
 ];
+
+const carouselImages = images.map((image) => image.uri);
+const width = Dimensions.get("window").width;
 
 
 
@@ -54,6 +75,15 @@ const SetPlanScreen = () => {
     const [isFocus, setIsFocus] = useState(false);
     const [selected, setSelected] = useState('');
 
+    const [visible, setIsVisible] = useState(false);
+    const imageRows = useMemo(() => {
+        const rows = [];
+        for (let index = 0; index < images.length; index += 3) {
+            rows.push(images.slice(index, index + 3));
+        }
+        return rows;
+    }, []);
+
     const renderLabel = () => {
         if (value || isFocus) {
             return (
@@ -63,6 +93,21 @@ const SetPlanScreen = () => {
             );
         }
         return null;
+    };
+
+
+    const ref = useRef<ICarouselInstance>(null);
+    const progress = useSharedValue<number>(0);
+
+    const onPressPagination = (index: number) => {
+        ref.current?.scrollTo({
+            /**
+             * Calculate the difference between the current index and the target index
+             * to ensure that the carousel scrolls to the nearest index
+             */
+            count: index - progress.value,
+            animated: true,
+        });
     };
 
     return (
@@ -76,7 +121,7 @@ const SetPlanScreen = () => {
 
             <View style={styles.inputContainer}>
 
-                {renderLabel()}
+                {/* {renderLabel()}
                 <Dropdown
                     style={[styles.dropdown, isFocus && { borderColor: '#F86241' }]}
                     placeholderStyle={styles.placeholderStyle}
@@ -105,7 +150,7 @@ const SetPlanScreen = () => {
                             size={20}
                         />
                     )}
-                />
+                /> */}
                 {/* calendar  */}
                 {/* <Calendar
                     markingType={'period'}
@@ -119,7 +164,7 @@ const SetPlanScreen = () => {
                         '2025-10-28': { endingDay: true, color: '#50cebb', textColor: 'white' }
                     }}
                 /> */}
-                <CalendarPicker
+                {/* <CalendarPicker
                     startFromMonday={true}
                     allowRangeSelection={true}
                     minDate={minDate}
@@ -128,11 +173,61 @@ const SetPlanScreen = () => {
                     selectedDayColor="#7300e6"
                     selectedDayTextColor="#FFFFFF"
                     onDateChange={onDateChange}
-                />
-                <View>
+                /> */}
+                {/* <View>
                     <Text>SELECTED START DATE: {startDate}</Text>
                     <Text>SELECTED END DATE: {endDate}</Text>
-                </View>
+                </View> */}
+
+                <TouchableOpacity
+                    style={styles.imagePreview}
+                    onPress={() => setIsVisible(true)}
+                    activeOpacity={0.8}
+                >
+                    {imageRows.map((row, rowIndex) => (
+                        <View
+                            style={[styles.imageRow, rowIndex === imageRows.length - 1 && styles.imageRowLast]}
+                            key={`row-${rowIndex}`}
+                        >
+                            {row.map((img, index) => (
+                                <Image
+                                    key={`${img.uri}-${index}`}
+                                    source={{ uri: img.uri }}
+                                    style={styles.previewImage}
+                                />
+                            ))}
+                        </View>
+                    ))}
+
+                </TouchableOpacity>
+
+                <ImageView
+                    images={images}
+                    imageIndex={0}
+                    visible={visible}
+                    onRequestClose={() => setIsVisible(false)}
+                />
+
+
+                <Carousel
+                    ref={ref}
+                    width={width}
+                    height={width / 2}
+                    data={carouselImages}
+                    onProgressChange={(_, absoluteProgress) => {
+                        progress.value = absoluteProgress;
+                    }}
+                    renderItem={({ item }) => (
+                        <View style={styles.carouselSlide}>
+                            <Image
+                                source={{ uri: item }}
+                                style={styles.carouselImage}
+                                resizeMode="cover"
+                            />
+                        </View>
+                    )}
+                />
+
             </View>
         </View>
     )
@@ -171,7 +266,7 @@ const styles = StyleSheet.create({
         marginTop: 20,
         borderTopLeftRadius: 20,
         borderTopRightRadius: 20,
-        gap: 15
+        gap: 25
     },
     Dcontainer: {
         backgroundColor: 'white',
@@ -210,5 +305,49 @@ const styles = StyleSheet.create({
     inputSearchStyle: {
         height: 40,
         fontSize: 16,
-    }
+    },
+    imagePreview: {
+        width: "100%",
+        borderRadius: 12,
+        overflow: "hidden",
+    },
+    imageRow: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        marginBottom: 12,
+    },
+    imageRowLast: {
+        marginBottom: 0
+    },
+    previewImage: {
+        width: "50%",
+        aspectRatio: 1,
+        borderRadius: 8,
+        gap: 20
+    },
+    previewText: {
+        paddingVertical: 10,
+        textAlign: "center",
+        fontWeight: "500",
+        color: "#333",
+    },
+    carouselSlide: {
+        flex: 1,
+        borderRadius: 16,
+        overflow: "hidden",
+    },
+    carouselImage: {
+        width: "100%",
+        height: "100%",
+    },
+    paginationContainer: {
+        marginTop: 12,
+    },
+    paginationDot: {
+        width: 8,
+        height: 8,
+        borderRadius: 4,
+        backgroundColor: "#F86241",
+        marginHorizontal: 4,
+    },
 })
