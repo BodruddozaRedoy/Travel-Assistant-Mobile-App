@@ -2,6 +2,7 @@ import { StyleSheet, Text, TextInput, View, TouchableOpacity } from 'react-nativ
 import React, { useState } from 'react'
 import { router } from 'expo-router'
 import AntDesign from '@expo/vector-icons/AntDesign';
+import Entypo from '@expo/vector-icons/Entypo';
 
 const RegisterScreen = () => {
   const [showPassword, setShowPassword] = useState(false)
@@ -49,7 +50,7 @@ const RegisterScreen = () => {
             placeholder='* Confirm password'
             secureTextEntry={!showConfirmPassword}
           />
-          <AntDesign
+          <Entypo
             name={showConfirmPassword ? "eye" : "eyeo"}
             size={24}
             color="#6a707c"
