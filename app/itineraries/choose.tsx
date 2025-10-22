@@ -1,4 +1,4 @@
-import { NativeSyntheticEvent, StyleSheet, Text, TextInput, TextInputKeyPressEventData, View } from "react-native";
+import { NativeSyntheticEvent, StyleSheet, Text, TextInput, TextInputKeyPressEventData, TouchableOpacity, View } from "react-native";
 import React, { useEffect, useRef, useState } from "react";
 import { router } from "expo-router";
 import AntDesign from '@expo/vector-icons/AntDesign';
@@ -30,16 +30,20 @@ const ChooseScreen = () => {
                 <View style={{ flex: 1, flexDirection: "row", gap: 5, alignItems: "baseline", justifyContent: "flex-start", flexWrap: "wrap" }}>
                     {
                         chooseList?.map((list, index) => (
-                            <View style={{ borderWidth: 1, borderRadius: 30, paddingVertical: 10, paddingHorizontal: 20, flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "center" }}>
-                                <Text style={{ fontWeight: 600, fontSize: 15 }}>Text</Text>
+                            <View key={index} style={{ borderWidth: 1, borderRadius: 30, paddingVertical: 10, paddingHorizontal: 20, flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "center" }}>
+                                <Text style={{ fontWeight: 600, fontSize: 15, }}>{list}</Text>
                                 <AntDesign name="plus" size={24} color="black" />
                             </View>
                         ))
                     }
                 </View>
-
-
             </View>
+            <TouchableOpacity
+                style={styles.registerBtn}
+                onPress={() => router.replace("/itineraries/setPlan")}
+            >
+                <Text style={styles.registerText}>Log In</Text>
+            </TouchableOpacity>
         </View>
     )
 }
@@ -78,5 +82,18 @@ const styles = StyleSheet.create({
         borderTopLeftRadius: 20,
         borderTopRightRadius: 20,
         gap: 15
+    },
+    registerBtn: {
+        backgroundColor: "#F86241",
+        paddingVertical: 15,
+        borderRadius: 30,
+        width: "100%",
+        alignItems: "center",
+        marginTop: 20
+    },
+    registerText: {
+        color: "#fff",
+        fontWeight: "600",
+        fontSize: 16,
     },
 })
