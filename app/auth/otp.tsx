@@ -1,12 +1,31 @@
-import { Alert, StyleSheet, Text, TextInput, View, TouchableOpacity } from "react-native";
-import React, { useState } from "react";
+import { NativeSyntheticEvent, StyleSheet, Text, TextInput, TextInputKeyPressEventData, View } from "react-native";
+import React, { useEffect, useRef, useState } from "react";
 import { router } from "expo-router";
-import AntDesign from "@expo/vector-icons/AntDesign";
-import Feather from "@expo/vector-icons/Feather";
 
 const OtpScreen = () => {
-  const [showPassword, setShowPassword] = useState(false);
-  const [rememberMe, setRememberMe] = useState(false);
+  const [otp, setOtp] = useState(["", "", "", ""]);
+  const inputRefs = useRef<Array<TextInput | null>>([]);
+
+  useEffect(() => {
+    inputRefs.current[0]?.focus();
+  }, []);
+
+  const handleChange = (value: string, index: number) => {
+    const sanitized = value.replace(/[^0-9]/g, "");
+    const updatedOtp = [...otp];
+    updatedOtp[index] = sanitized;
+    setOtp(updatedOtp);
+
+    if (sanitized && index < inputRefs.current.length - 1) {
+      inputRefs.current[index + 1]?.focus();
+    }
+  };
+
+  const handleKeyPress = (event: NativeSyntheticEvent<TextInputKeyPressEventData>, index: number) => {
+    if (event.nativeEvent.key === "Backspace" && !otp[index] && index > 0) {
+      inputRefs.current[index - 1]?.focus();
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -19,19 +38,24 @@ const OtpScreen = () => {
 
       <View style={styles.inputContainer}>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+        <View style={styles.otpWrapper}>
+          {otp.map((digit, index) => (
+            <TextInput
+              key={index}
+              ref={(element) => {
+                inputRefs.current[index] = element;
+              }}
+              style={styles.otpInput}
+              keyboardType="number-pad"
+              maxLength={1}
+              value={digit}
+              onChangeText={(value) => handleChange(value, index)}
+              onKeyPress={(event) => handleKeyPress(event, index)}
+              returnKeyType="next"
+              textAlign="center"
+            />
+          ))}
+        </View>
         <View style={{ alignItems: "center", width: "100%" }}>
           <Text style={{ fontSize: 18, textAlign: "center" }}>
             Don’t get OTP?{" "}
@@ -80,80 +104,20 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 20,
     gap: 15
   },
-  input: {
-    backgroundColor: "#FFF4F2",
-    marginTop: 10,
-    borderRadius: 5,
-    height: 50,
-    paddingHorizontal: 20,
-    width: "100%"
-  },
-  eyeIcon: {
-    position: "absolute",
-    right: 15,
-    top: 42
-  },
-  optionsRow: {
-    width: "100%",
+  otpWrapper: {
     flexDirection: "row",
-    alignItems: "center",
     justifyContent: "space-between",
-    marginTop: -5
-  },
-  rememberContainer: {
-    flexDirection: "row",
-    alignItems: "center"
-  },
-  rememberText: {
-    color: "#2c2d30",
-    fontSize: 14,
-    fontWeight: 600
-  },
-  checkbox: {
-    width: 20,
-    height: 20,
-    borderRadius: 5,
-    borderWidth: 1.5,
-    borderColor: "#6a707c",
-    justifyContent: "center",
-    alignItems: "center",
-    marginRight: 8,
-    backgroundColor: "transparent"
-  },
-  checkboxSelected: {
-    backgroundColor: "#F86241",
-    borderColor: "#F86241"
-  },
-  forgotText: {
-    color: "#F86241",
-    fontSize: 14,
-    fontWeight: "500"
-  },
-  registerBtn: {
-    backgroundColor: "#F86241",
-    paddingVertical: 15,
-    borderRadius: 30,
     width: "100%",
-    alignItems: "center",
-    marginTop: 20
+    marginTop: 30,
+    marginBottom: 10
   },
-  registerText: {
-    color: "#fff",
-    fontWeight: "600",
-    fontSize: 16,
-  },
-  socialContainer: {
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    marginTop: 10,
-    alignSelf: "center"
-  },
-  socialIcon: {
-    borderWidth: 1,
-    borderColor: "#6a707c",
-    padding: 20,
-    borderRadius: 10,
-    marginHorizontal: 10
+  otpInput: {
+    width: "20%",
+    minWidth: 60,
+    height: 60,
+    borderRadius: 12,
+    borderWidth: 0,
+    backgroundColor: "#FFF4F2",
+    fontSize: 24
   }
 })
