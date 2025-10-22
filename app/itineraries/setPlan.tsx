@@ -5,19 +5,39 @@ import AntDesign from '@expo/vector-icons/AntDesign';
 import { Picker } from '@react-native-picker/picker';
 import { Dropdown } from 'react-native-element-dropdown';
 import { Calendar, CalendarList, Agenda } from 'react-native-calendars';
+import CalendarPicker from "react-native-calendar-picker";
 
 const data = [
     { label: 'Item 1', value: '1' },
     { label: 'Item 2', value: '2' },
     { label: 'Item 3', value: '3' },
     { label: 'Item 4', value: '4' },
-    { label: 'Item 5', value: '5' },
+    { label: 'Item 5', value: '5' }, 
     { label: 'Item 6', value: '6' },
     { label: 'Item 7', value: '7' },
     { label: 'Item 8', value: '8' },
 ];
 
+
+
 const SetPlanScreen = () => {
+    const [selectedStartDate, setSelectedStartDate] = useState(null);
+    const [selectedEndDate, setSelectedEndDate] = useState(null);
+
+    const onDateChange = (date, type) => {
+        if (type === "END_DATE") {
+            setSelectedEndDate(date);
+        } else {
+            setSelectedStartDate(date);
+            setSelectedEndDate(null);
+        }
+    };
+
+    const minDate = new Date(); // Today
+    const maxDate = new Date(minDate); // Allow selections up to two years ahead
+    maxDate.setFullYear(maxDate.getFullYear() + 2);
+    const startDate = selectedStartDate ? selectedStartDate.toString() : "";
+    const endDate = selectedEndDate ? selectedEndDate.toString() : "";
     const chooseList = [
         "Hiking & Trekking",
         "Art",
@@ -87,7 +107,7 @@ const SetPlanScreen = () => {
                     )}
                 />
                 {/* calendar  */}
-                <Calendar
+                {/* <Calendar
                     markingType={'period'}
                     markedDates={{
                         '2025-10-22': { marked: true, dotColor: '#50cebb' },
@@ -98,7 +118,21 @@ const SetPlanScreen = () => {
                         '2025-10-27': { color: '#70d7c7', textColor: 'white' },
                         '2025-10-28': { endingDay: true, color: '#50cebb', textColor: 'white' }
                     }}
+                /> */}
+                <CalendarPicker
+                    startFromMonday={true}
+                    allowRangeSelection={true}
+                    minDate={minDate}
+                    maxDate={maxDate}
+                    todayBackgroundColor="#f2e6ff"
+                    selectedDayColor="#7300e6"
+                    selectedDayTextColor="#FFFFFF"
+                    onDateChange={onDateChange}
                 />
+                <View>
+                    <Text>SELECTED START DATE: {startDate}</Text>
+                    <Text>SELECTED END DATE: {endDate}</Text>
+                </View>
             </View>
         </View>
     )
