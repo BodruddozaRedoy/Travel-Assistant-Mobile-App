@@ -1,6 +1,7 @@
 import { NativeSyntheticEvent, StyleSheet, Text, TextInput, TextInputKeyPressEventData, View } from "react-native";
 import React, { useEffect, useRef, useState } from "react";
 import { router } from "expo-router";
+import AntDesign from '@expo/vector-icons/AntDesign';
 
 const ChooseScreen = () => {
     const chooseList = [
@@ -26,8 +27,15 @@ const ChooseScreen = () => {
 
             <View style={styles.inputContainer}>
                 <Text style={{ fontSize: 30, fontWeight: 600, textAlign: "center" }}>Choose What you like!</Text>
-                <View>
-
+                <View style={{ flex: 1, flexDirection: "row", gap: 5, alignItems: "baseline", justifyContent: "flex-start", flexWrap: "wrap" }}>
+                    {
+                        chooseList?.map((list, index) => (
+                            <View style={{ borderWidth: 1, borderRadius: 30, paddingVertical: 10, paddingHorizontal: 20, flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "center" }}>
+                                <Text style={{ fontWeight: 600, fontSize: 15 }}>Text</Text>
+                                <AntDesign name="plus" size={24} color="black" />
+                            </View>
+                        ))
+                    }
                 </View>
 
 

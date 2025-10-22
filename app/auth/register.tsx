@@ -62,7 +62,7 @@ const RegisterScreen = () => {
 
         <TouchableOpacity
           style={styles.registerBtn}
-          onPress={() => router.replace("/auth/auth_screen")}
+          onPress={() => router.replace("/auth/login")}
         >
           <Text style={styles.registerText}>Register</Text>
         </TouchableOpacity>
