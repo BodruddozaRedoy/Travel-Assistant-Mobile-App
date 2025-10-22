@@ -53,7 +53,7 @@ const LoginScreen = () => {
                     </TouchableOpacity>
                     <TouchableOpacity
                         onPress={() =>
-                            Alert.alert("Forgot password", "Password reset will be available soon.")
+                            router.push("/auth/forget_pass")
                         }
                         activeOpacity={0.7}
                     >
