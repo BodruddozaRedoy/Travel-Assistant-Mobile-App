@@ -1,10 +1,12 @@
-import { NativeSyntheticEvent, StyleSheet, Text, TextInput, TextInputKeyPressEventData, View } from "react-native";
+import { NativeSyntheticEvent, StyleSheet, Text, TextInput, TextInputKeyPressEventData, TouchableOpacity, View } from "react-native";
 import React, { useEffect, useRef, useState } from "react";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
+import { AxiosPublic } from "@/config/axios";
 
 const OtpScreen = () => {
   const [otp, setOtp] = useState(["", "", "", ""]);
   const inputRefs = useRef<Array<TextInput | null>>([]);
+  const { email } = useLocalSearchParams()
 
   useEffect(() => {
     inputRefs.current[0]?.focus();
@@ -26,6 +28,28 @@ const OtpScreen = () => {
       inputRefs.current[index - 1]?.focus();
     }
   };
+
+  const verifyOtp = async () => {
+    const otpString = otp.join("");
+
+    try {
+      const res = await AxiosPublic.patch("/accounts/api/v1/verify-otp", {
+        email,
+        otp: otpString,
+      });
+
+      console.log("Verify Response:", res.data);
+
+      if (res.status === 200) {
+        alert("Verified!");
+        router.push("/auth/login");
+      }
+    } catch (error: any) {
+      console.log("OTP verification failed:", error.response?.data || error.message);
+      alert("Verification failed! Please try again.");
+    }
+  };
+
 
   return (
     <View style={styles.container}>
@@ -56,6 +80,21 @@ const OtpScreen = () => {
             />
           ))}
         </View>
+        <TouchableOpacity
+          onPress={verifyOtp}
+          style={{
+            backgroundColor: "#F86241",
+            paddingVertical: 15,
+            borderRadius: 30,
+            width: "100%",
+            alignItems: "center",
+            marginTop: 20,
+          }}
+        >
+          <Text style={{ color: "#fff", fontWeight: "600", fontSize: 16 }}>
+            Verify OTP
+          </Text>
+        </TouchableOpacity>
         <View style={{ alignItems: "center", width: "100%" }}>
           <Text style={{ fontSize: 18, textAlign: "center" }}>
             Don’t get OTP?{" "}

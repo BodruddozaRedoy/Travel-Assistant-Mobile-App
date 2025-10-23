@@ -1,8 +1,10 @@
 import AntDesign from "@expo/vector-icons/AntDesign";
 import Entypo from "@expo/vector-icons/Entypo";
+import * as ImagePicker from 'expo-image-picker';
 import React, { useMemo, useRef, useState } from "react";
 import {
     Alert,
+    Button,
     Dimensions,
     Image,
     Modal,
@@ -49,6 +51,22 @@ const SetPlanScreen = () => {
     const [selectedStartDate, setSelectedStartDate] = useState(null);
     const [selectedEndDate, setSelectedEndDate] = useState(null);
     const [activeTab, setActiveTab] = useState("Overview");
+    const [image, setImage] = useState<string | null>(null);
+
+    const pickImage = async () => {
+        let result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ['images', 'videos'],
+            // allowsEditing: true,
+            // aspect: [4, 3],
+            quality: 1,
+        });
+
+        console.log(result);
+
+        if (!result.canceled) {
+            setImage(result.assets[0].uri);
+        }
+    };
 
     const imageRows = useMemo(() => {
         const rows = [];
@@ -249,7 +267,6 @@ const SetPlanScreen = () => {
                         />
                     </View>
 
-                </View>
 
                 <View style={styles.tabHeader}>
                     {["Overview", "Details", "Reviews"].map((tab) => (
@@ -294,13 +311,16 @@ const SetPlanScreen = () => {
                         latitudeDelta: 0.05,
                         longitudeDelta: 0.05,
                     }}
-                >
+                    >
                     <Marker
                         coordinate={{ latitude: 23.781035718597142, longitude: 90.40754759626876 }}
                         title="Dhaka"
                         description="Example location"
                     />
                 </MapView>
+            </View>
+                <Button title="Pick an image from camera roll" onPress={pickImage} />
+                {image && <Image source={{ uri: image }} style={styles.image} />}
             </View>
         </ScrollView>
     );
@@ -435,6 +455,10 @@ const styles = StyleSheet.create({
         borderRadius: 4,
         backgroundColor: "#F86241",
         marginHorizontal: 4,
+    },
+    image: {
+        width: 200,
+        height: 200,
     },
 
 });
