@@ -1,9 +1,11 @@
-import { Alert, StyleSheet, Text, TextInput, View, TouchableOpacity, ActivityIndicator } from "react-native";
-import React, { useState } from "react";
-import { router } from "expo-router";
+import { AxiosPublic } from "@/config/axios";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import Feather from "@expo/vector-icons/Feather";
-import { AxiosPublic } from "@/config/axios";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { router } from "expo-router";
+import * as SecureStore from 'expo-secure-store';
+import React, { useState } from "react";
+import { ActivityIndicator, Alert, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 
 const LoginScreen = () => {
     const [showPassword, setShowPassword] = useState(false);
@@ -25,14 +27,19 @@ const LoginScreen = () => {
 
             const res = await AxiosPublic.post("/accounts/api/v1/login", user);
 
-            console.log("Login success:", res.data);
+            // console.log(res.data);
 
             Alert.alert("Success", "You have successfully logged in!", [
                 {
                     text: "OK",
-                    onPress: () => router.replace("/itineraries/choose"),
+                    onPress: () => router.replace("/(tabs)/home"),
                 },
             ]);
+
+
+
+            await SecureStore.setItemAsync("access-token", JSON.stringify(res.data.access))
+            await AsyncStorage.setItem("user", JSON.stringify(res.data.login_user_info))
         } catch (error: any) {
             console.log("Login error:", error.response?.data || error.message);
             if (error.response?.data?.message) {
@@ -115,6 +122,18 @@ const LoginScreen = () => {
                         <ActivityIndicator color="#fff" />
                     ) : (
                             <Text style={styles.registerText}>Log In</Text>
+                    )}
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                    style={[styles.registerBtn, loading && { opacity: 0.7 }]}
+                    onPress={() => router.replace("/(tabs)/home")}
+                    disabled={loading}
+                >
+                    {loading ? (
+                        <ActivityIndicator color="#fff" />
+                    ) : (
+                        <Text style={styles.registerText}>Home</Text>
                     )}
                 </TouchableOpacity>
 

@@ -11,8 +11,6 @@ const queryClient = new QueryClient()
 
 export default function RootLayout() {
     // const { expoPushToken, notification } = usePushNotifications();
-    // console.log("Push Token:", expoPushToken);
-    // console.log("Notification:", notification);
     return (
         <QueryClientProvider client={queryClient}>
             <GestureHandlerRootView>

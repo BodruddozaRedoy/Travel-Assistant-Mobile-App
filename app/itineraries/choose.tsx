@@ -1,7 +1,8 @@
 import AntDesign from "@expo/vector-icons/AntDesign";
 import BottomSheet from "@gorhom/bottom-sheet";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
-import React, { useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
     ScrollView,
     StyleSheet,
@@ -25,6 +26,18 @@ const ChooseScreen = () => {
 
     const [selected, setSelected] = useState<string[]>([]);
     const sheetRef = useRef<BottomSheet>(null);
+    const [user, setUser] = useState({})
+
+    useEffect(() => {
+        const getUser = async () => {
+            const user = await AsyncStorage.getItem("user")
+            setUser(JSON.parse(user))
+        }
+        getUser()
+    }, [])
+
+    console.log(user)
+
 
     const snapPoints = useMemo(() => ["40%", "80%"], []);
 
@@ -38,95 +51,91 @@ const ChooseScreen = () => {
 
     return (
         <View style={styles.container}>
-          {/* Header */}
-          <View style={styles.header}>
-              <Text style={styles.headline}>Let's Personalize Your Adventure</Text>
-              <Text style={styles.description}>
-                  Help us understand your travel style so we can create perfect itineraries just for you.
-              </Text>
-          </View>
+            <View style={styles.header}>
+                <Text style={styles.headline}>Let's Personalize Your Adventure</Text>
+                <Text style={styles.description}>
+                    Help us understand your travel style so we can create perfect itineraries just for you.
+                </Text>
+            </View>
 
-          {/* Main content */}
-          <View style={styles.contentContainer}>
-              <Text style={styles.subHeading}>Your selected interests</Text>
+            <View style={styles.contentContainer}>
+                <Text>{user.name}</Text>
+                <Text style={styles.subHeading}>Your selected interests</Text>
 
-              {/* Selected list preview */}
-              <ScrollView
-                  contentContainerStyle={styles.choicesContainer}
-                  showsVerticalScrollIndicator={false}
-              >
-                  {selected.length === 0 ? (
-                      <Text style={styles.emptyText}>No selections yet — tap “Edit” to add some!</Text>
-                  ) : (
-                      selected.map((item, index) => (
-                          <View key={index} style={[styles.choiceItem, styles.selectedChoice]}>
-                              <Text style={[styles.choiceText, { color: "#fff" }]}>{item}</Text>
-                              <AntDesign name="check" size={16} color="#fff" />
-                          </View>
-                      ))
-                  )}
-              </ScrollView>
+                <ScrollView
+                    contentContainerStyle={styles.choicesContainer}
+                    showsVerticalScrollIndicator={false}
+                >
+                    {selected.length === 0 ? (
+                        <Text style={styles.emptyText}>No selections yet — tap “Edit” to add some!</Text>
+                    ) : (
+                        selected.map((item, index) => (
+                            <View key={index} style={[styles.choiceItem, styles.selectedChoice]}>
+                                <Text style={[styles.choiceText, { color: "#fff" }]}>{item}</Text>
+                                <AntDesign name="check" size={16} color="#fff" />
+                            </View>
+                        ))
+                    )}
+                </ScrollView>
 
-              {/* Buttons */}
-              <View style={styles.buttonRow}>
-                  <TouchableOpacity
-                      style={[styles.actionButton, styles.editButton]}
-                      onPress={() => sheetRef.current?.expand()}
-                  >
-                      <AntDesign name="edit" size={18} color="#F86241" />
-                      <Text style={[styles.actionText, { color: "#F86241" }]}>Edit</Text>
-                  </TouchableOpacity>
+                <View style={styles.buttonRow}>
+                    <TouchableOpacity
+                        style={[styles.actionButton, styles.editButton]}
+                        onPress={() => sheetRef.current?.expand()}
+                    >
+                        <AntDesign name="edit" size={18} color="#F86241" />
+                        <Text style={[styles.actionText, { color: "#F86241" }]}>Edit</Text>
+                    </TouchableOpacity>
 
-                  <TouchableOpacity
-                      style={[styles.actionButton, styles.continueButton]}
-                      onPress={() => router.replace("/itineraries/setPlan")}
-                  >
-                      <Text style={[styles.actionText, { color: "#fff" }]}>Continue</Text>
-                  </TouchableOpacity>
-              </View>
-          </View>
+                    <TouchableOpacity
+                        style={[styles.actionButton, styles.continueButton]}
+                        onPress={() => router.replace("/itineraries/setPlan")}
+                    >
+                        <Text style={[styles.actionText, { color: "#fff" }]}>Continue</Text>
+                    </TouchableOpacity>
+                </View>
+            </View>
 
-          {/* Bottom Sheet */}
-          <BottomSheet ref={sheetRef} index={-1} snapPoints={snapPoints} enablePanDownToClose>
-              <View style={styles.sheetContainer}>
-                  <Text style={styles.sheetHeading}>Choose your interests</Text>
-                  <ScrollView
-                      contentContainerStyle={styles.sheetChoices}
-                      showsVerticalScrollIndicator={false}
-                  >
-                      {chooseList.map((item, index) => {
-                          const isSelected = selected.includes(item);
-                          return (
-                              <TouchableOpacity
-                                  key={index}
-                                  style={[
-                                      styles.sheetItem,
-                                      isSelected && { backgroundColor: "#F86241", borderColor: "#F86241" },
-                                  ]}
-                                  onPress={() => toggleChoice(item)}
-                                  activeOpacity={0.8}
-                              >
-                                  <Text
-                                      style={[
-                                          styles.sheetItemText,
-                                          { color: isSelected ? "#fff" : "#222" },
-                                      ]}
-                                  >
-                                      {item}
-                                  </Text>
-                                  <AntDesign
-                                      name={isSelected ? "minus" : "plus"}
-                                      size={18}
-                                      color={isSelected ? "#fff" : "#F86241"}
-                                  />
-                </TouchableOpacity>
-                );
-            })}
-                  </ScrollView>
-              </View>
-          </BottomSheet>
-      </View>
-  );
+            <BottomSheet ref={sheetRef} index={-1} snapPoints={snapPoints} enablePanDownToClose>
+                <View style={styles.sheetContainer}>
+                    <Text style={styles.sheetHeading}>Choose your interests</Text>
+                    <ScrollView
+                        contentContainerStyle={styles.sheetChoices}
+                        showsVerticalScrollIndicator={false}
+                    >
+                        {chooseList.map((item, index) => {
+                            const isSelected = selected.includes(item);
+                            return (
+                                <TouchableOpacity
+                                    key={index}
+                                    style={[
+                                        styles.sheetItem,
+                                        isSelected && { backgroundColor: "#F86241", borderColor: "#F86241" },
+                                    ]}
+                                    onPress={() => toggleChoice(item)}
+                                    activeOpacity={0.8}
+                                >
+                                    <Text
+                                        style={[
+                                            styles.sheetItemText,
+                                            { color: isSelected ? "#fff" : "#222" },
+                                        ]}
+                                    >
+                                        {item}
+                                    </Text>
+                                    <AntDesign
+                                        name={isSelected ? "minus" : "plus"}
+                                        size={18}
+                                        color={isSelected ? "#fff" : "#F86241"}
+                                    />
+                                </TouchableOpacity>
+                            );
+                        })}
+                    </ScrollView>
+                </View>
+            </BottomSheet>
+        </View>
+    );
 };
 
 export default ChooseScreen;

@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "task",
-    "slug": "task",
+    "name": "Travel Assistant",
+    "slug": "Travel_Assistant",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "task",
+    "scheme": "travel-assistant",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
