@@ -1,9 +1,7 @@
-import { StyleSheet, Text, TextInput, View, TouchableOpacity } from "react-native";
-import React, { useState } from "react";
-import { router } from "expo-router";
-import AntDesign from "@expo/vector-icons/AntDesign";
-import Entypo from "@expo/vector-icons/Entypo";
 import Feather from '@expo/vector-icons/Feather';
+import { router } from "expo-router";
+import { useState } from "react";
+import { StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 
 const PasswordChangeScreen = () => {
   const [showPassword, setShowPassword] = useState(false)

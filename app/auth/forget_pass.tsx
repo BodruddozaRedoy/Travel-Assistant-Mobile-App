@@ -1,8 +1,6 @@
-import { Alert, StyleSheet, Text, TextInput, View, TouchableOpacity } from "react-native";
-import React, { useState } from "react";
 import { router } from "expo-router";
-import AntDesign from "@expo/vector-icons/AntDesign";
-import Feather from "@expo/vector-icons/Feather";
+import { useState } from "react";
+import { StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 
 const LoginScreen = () => {
   const [showPassword, setShowPassword] = useState(false);

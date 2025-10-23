@@ -3,6 +3,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { router, useLocalSearchParams } from "expo-router";
 import { AxiosPublic } from "@/config/axios";
 
+
 const OtpScreen = () => {
   const [otp, setOtp] = useState(["", "", "", ""]);
   const inputRefs = useRef<Array<TextInput | null>>([]);
