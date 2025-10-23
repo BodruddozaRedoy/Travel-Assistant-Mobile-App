@@ -71,7 +71,7 @@ const SetPlanScreen = () => {
     const onDateChange = (date, type) => {
         if (type === "END_DATE") {
             setSelectedEndDate(date);
-            setCalendarVisible(false);
+            // setCalendarVisible(false);
         } else {
             setSelectedStartDate(date);
             setSelectedEndDate(null);
