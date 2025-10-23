@@ -18,7 +18,7 @@ import { Dropdown } from "react-native-element-dropdown";
 import ImageView from "react-native-image-viewing";
 import MapView, { Marker } from "react-native-maps";
 import { useSharedValue } from "react-native-reanimated";
-import Carousel, { ICarouselInstance } from "react-native-reanimated-carousel";
+import Carousel, { ICarouselInstance, Pagination } from "react-native-reanimated-carousel";
 
 const width = Dimensions.get("window").width;
 
@@ -220,27 +220,35 @@ const SetPlanScreen = () => {
                         onRequestClose={() => setIsVisible(false)}
                     />
 
-                    <Carousel
-                        ref={ref}
-                        width={width - 40}
-                        height={200}
-                        data={carouselImages}
-                        autoPlay={true}
-                        loop={true}
-                        style={{ alignSelf: "center", marginTop: 20 }}
-                        onProgressChange={(_, absoluteProgress) => {
-                            progress.value = absoluteProgress;
-                        }}
-                        renderItem={({ item }) => (
-                            <View style={styles.carouselSlide}>
-                                <Image
-                                    source={{ uri: item }}
-                                    style={styles.carouselImage}
-                                    resizeMode="cover"
-                                />
-                            </View>
-                        )}
-                    />
+                    <View style={styles.carouselWrapper}>
+                        <Carousel
+                            ref={ref}
+                            width={width - 40}
+                            height={200}
+                            data={carouselImages}
+                            style={{ alignSelf: "center" }}
+                            onProgressChange={(_, absoluteProgress) => {
+                                progress.value = absoluteProgress;
+                            }}
+                            renderItem={({ item }) => (
+                                <View style={styles.carouselSlide}>
+                                    <Image
+                                        source={{ uri: item }}
+                                        style={styles.carouselImage}
+                                        resizeMode="cover"
+                                    />
+                                </View>
+                            )}
+                        />
+
+                        <Pagination.Basic
+                            progress={progress}
+                            data={carouselImages}
+                            dotStyle={styles.dotStyle}
+                            containerStyle={styles.dotContainer}
+                        />
+                    </View>
+
                 </View>
 
                 <View style={styles.tabHeader}>
@@ -281,14 +289,14 @@ const SetPlanScreen = () => {
                 <MapView
                     style={styles.map}
                     initialRegion={{
-                        latitude: 23.8103,
-                        longitude: 90.4125,
+                        latitude: 23.781035718597142,
+                        longitude: 90.40754759626876,
                         latitudeDelta: 0.05,
                         longitudeDelta: 0.05,
                     }}
                 >
                     <Marker
-                        coordinate={{ latitude: 23.8103, longitude: 90.4125 }}
+                        coordinate={{ latitude: 23.781035718597142, longitude: 90.40754759626876 }}
                         title="Dhaka"
                         description="Example location"
                     />
@@ -364,7 +372,7 @@ const styles = StyleSheet.create({
     },
     closeButtonText: { color: "#fff", fontWeight: "600", fontSize: 16 },
     imagePreview: { width: "100%", borderRadius: 12, overflow: "hidden", marginTop: 20 },
-    imageRow: { flexDirection: "row", justifyContent: "space-between", marginBottom: 12 },
+    imageRow: { flexDirection: "row", justifyContent: "center", marginBottom: 12, gap: 5 },
     imageRowLast: { marginBottom: 0 },
     imageWrapper: { position: "relative" },
     previewImage: { width: width / 3 - 14, aspectRatio: 1, borderRadius: 8 },
@@ -411,4 +419,22 @@ const styles = StyleSheet.create({
         borderColor: "#eee",
     },
     map: { width: "100%", height: "100%" },
+    carouselWrapper: {
+        marginTop: 20,
+        alignItems: "center",
+    },
+    dotContainer: {
+        marginTop: 8,
+        flexDirection: "row",
+        justifyContent: "center",
+        alignItems: "center",
+    },
+    dotStyle: {
+        width: 8,
+        height: 8,
+        borderRadius: 4,
+        backgroundColor: "#F86241",
+        marginHorizontal: 4,
+    },
+
 });
