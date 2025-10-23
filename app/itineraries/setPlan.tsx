@@ -1,56 +1,55 @@
-import { StyleSheet, Text, View, TouchableOpacity, Image, Dimensions, Share, Alert, ScrollView } from "react-native";
+import AntDesign from "@expo/vector-icons/AntDesign";
+import Entypo from "@expo/vector-icons/Entypo";
 import React, { useMemo, useRef, useState } from "react";
+import {
+    Alert,
+    Dimensions,
+    Image,
+    Modal,
+    ScrollView,
+    Share,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
+} from "react-native";
+import CalendarPicker from "react-native-calendar-picker";
+import { Dropdown } from "react-native-element-dropdown";
 import ImageView from "react-native-image-viewing";
-import { useSharedValue } from "react-native-reanimated";
-import Carousel, { ICarouselInstance, Pagination } from "react-native-reanimated-carousel";
-import Entypo from '@expo/vector-icons/Entypo';
 import MapView, { Marker } from "react-native-maps";
+import { useSharedValue } from "react-native-reanimated";
+import Carousel, { ICarouselInstance } from "react-native-reanimated-carousel";
 
+const width = Dimensions.get("window").width;
 
-// const data = [
-//     { label: 'Item 1', value: '1' },
-//     { label: 'Item 2', value: '2' },
-//     { label: 'Item 3', value: '3' },
-//     { label: 'Item 4', value: '4' },
-//     { label: 'Item 5', value: '5' },
-//     { label: 'Item 6', value: '6' },
-//     { label: 'Item 7', value: '7' },
-//     { label: 'Item 8', value: '8' },
-// ];
+const data = [
+    { label: "Hiking Adventures", value: "1" },
+    { label: "Cultural Trips", value: "2" },
+    { label: "Food Tours", value: "3" },
+    { label: "Mountain Expeditions", value: "4" },
+    { label: "Festival Getaways", value: "5" },
+];
 
 const images = [
     { uri: "https://images.unsplash.com/photo-1571501679680-de32f1e7aad4" },
     { uri: "https://images.unsplash.com/photo-1573273787173-0eb81a833b34" },
     { uri: "https://images.unsplash.com/photo-1569569970363-df7b6160d111" },
-    { uri: "https://images.unsplash.com/photo-1569569970363-df7b6160d111" },
-    { uri: "https://images.unsplash.com/photo-1569569970363-df7b6160d111" },
+    { uri: "https://gratisography.com/wp-content/uploads/2024/11/gratisography-augmented-reality-800x525.jpg" },
+    { uri: "https://letsenhance.io/static/73136da51c245e80edc6ccfe44888a99/396e9/MainBefore.jpg" },
+    { uri: "https://cdn.pixabay.com/photo/2018/08/04/11/30/draw-3583548_1280.png" },
 ];
 
 const carouselImages = images.map((image) => image.uri);
-const width = Dimensions.get("window").width;
 
 const SetPlanScreen = () => {
+    const [value, setValue] = useState(null);
+    const [isFocus, setIsFocus] = useState(false);
+    const [visible, setIsVisible] = useState(false);
+    const [calendarVisible, setCalendarVisible] = useState(false);
     const [selectedStartDate, setSelectedStartDate] = useState(null);
     const [selectedEndDate, setSelectedEndDate] = useState(null);
     const [activeTab, setActiveTab] = useState("Overview");
 
-    const onDateChange = (date, type) => {
-        if (type === "END_DATE") {
-            setSelectedEndDate(date);
-        } else {
-            setSelectedStartDate(date);
-            setSelectedEndDate(null);
-        }
-    };
-
-    const minDate = new Date();
-    const maxDate = new Date(minDate);
-    maxDate.setFullYear(maxDate.getFullYear() + 2);
-
-    const startDate = selectedStartDate ? selectedStartDate.toString() : "";
-    const endDate = selectedEndDate ? selectedEndDate.toString() : "";
-
-    const [visible, setIsVisible] = useState(false);
     const imageRows = useMemo(() => {
         const rows = [];
         for (let index = 0; index < images.length; index += 3) {
@@ -69,20 +68,46 @@ const SetPlanScreen = () => {
         });
     };
 
-    const onShare = async () => {
+    const onDateChange = (date, type) => {
+        if (type === "END_DATE") {
+            setSelectedEndDate(date);
+            setCalendarVisible(false);
+        } else {
+            setSelectedStartDate(date);
+            setSelectedEndDate(null);
+        }
+    };
+
+    const onShare = async (imgUri: string) => {
         try {
-            const result = await Share.share({
-                message: 'React Native | A framework for building native apps using React',
+            await Share.share({
+                message: `Check out this amazing place!`,
+                url: imgUri, // Only works fully on iOS and some Android versions
             });
+
         } catch (error: any) {
             Alert.alert(error.message);
         }
     };
 
+    const minDate = new Date();
+    const maxDate = new Date(minDate);
+    maxDate.setFullYear(maxDate.getFullYear() + 2);
+
+    const formatDate = (date) => {
+        if (!date) return "";
+        const d = new Date(date);
+        return d.toLocaleDateString("en-GB", {
+            day: "2-digit",
+            month: "short",
+            year: "numeric",
+        });
+    };
+
     return (
         <ScrollView style={styles.scrollContainer} showsVerticalScrollIndicator={false}>
             <View style={styles.container}>
-                <View style={{ marginLeft: 20 }}>
+                <View style={styles.header}>
                     <Text style={styles.headline}>Where to Next?</Text>
                     <Text style={styles.description}>
                         Help us understand your travel style so we can create perfect itineraries just for you.
@@ -90,9 +115,8 @@ const SetPlanScreen = () => {
                 </View>
 
                 <View style={styles.inputContainer}>
-                    {/* {renderLabel()}
                     <Dropdown
-                        style={[styles.dropdown, isFocus && { borderColor: '#F86241' }]}
+                        style={[styles.dropdown, isFocus && { borderColor: "#F86241" }]}
                         placeholderStyle={styles.placeholderStyle}
                         selectedTextStyle={styles.selectedTextStyle}
                         inputSearchStyle={styles.inputSearchStyle}
@@ -102,56 +126,75 @@ const SetPlanScreen = () => {
                         maxHeight={300}
                         labelField="label"
                         valueField="value"
-                        placeholder={!isFocus ? 'Select item' : '...'}
+                        placeholder={!isFocus ? "Select category" : "..."}
                         searchPlaceholder="Search..."
                         value={value}
                         onFocus={() => setIsFocus(true)}
                         onBlur={() => setIsFocus(false)}
-                        onChange={item => {
+                        onChange={(item) => {
                             setValue(item.value);
                             setIsFocus(false);
                         }}
                         renderLeftIcon={() => (
                             <AntDesign
                                 style={styles.icon}
-                                color={isFocus ? 'blue' : 'black'}
-                                name="Safety"
+                                color={isFocus ? "#F86241" : "black"}
+                                // name="Safety"
                                 size={20}
                             />
                         )}
-                    /> */}
-                    {/* calendar  
-                    <Calendar
-                        markingType={'period'}
-                        markedDates={{
-                            '2025-10-22': { marked: true, dotColor: '#50cebb' },
-                            '2025-10-23': { marked: true, dotColor: '#50cebb' },
-                            '2025-10-24': { startingDay: true, color: '#50cebb', textColor: 'white' },
-                            '2025-10-25': { color: '#70d7c7', textColor: 'white' },
-                            '2025-10-26': { color: '#70d7c7', textColor: 'white', marked: true, dotColor: 'white' },
-                            '2025-10-27': { color: '#70d7c7', textColor: 'white' },
-                            '2025-10-28': { endingDay: true, color: '#50cebb', textColor: 'white' }
-                        }}
-                    /> */}
-                    {/* <CalendarPicker
-                        startFromMonday={true}
-                        allowRangeSelection={true}
-                        minDate={minDate}
-                        maxDate={maxDate}
-                        todayBackgroundColor="#f2e6ff"
-                        selectedDayColor="#7300e6"
-                        selectedDayTextColor="#FFFFFF"
-                        onDateChange={onDateChange}
-                    /> */}
-                    {/* <View>
-                        <Text>SELECTED START DATE: {startDate}</Text>
-                        <Text>SELECTED END DATE: {endDate}</Text>
-                    </View> */}
+                    />
+
+                    <View style={styles.dateFieldsContainer}>
+                        <TouchableOpacity
+                            style={styles.dateField}
+                            onPress={() => setCalendarVisible(true)}
+                        >
+                            <AntDesign name="calendar" size={18} color="#F86241" />
+                            <Text style={styles.dateFieldText}>
+                                {formatDate(selectedStartDate) || "Start Date"}
+                            </Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            style={styles.dateField}
+                            onPress={() => setCalendarVisible(true)}
+                        >
+                            <AntDesign name="calendar" size={18} color="#F86241" />
+                            <Text style={styles.dateFieldText}>
+                                {formatDate(selectedEndDate) || "End Date"}
+                            </Text>
+                        </TouchableOpacity>
+                    </View>
+
+                    <Modal visible={calendarVisible} transparent animationType="slide">
+                        <View style={styles.modalContainer}>
+                            <View style={styles.calendarModal}>
+                                <Text style={styles.modalTitle}>Select Travel Dates</Text>
+                                <CalendarPicker
+                                    startFromMonday
+                                    allowRangeSelection
+                                    minDate={minDate}
+                                    maxDate={maxDate}
+                                    todayBackgroundColor="#FDE9E3"
+                                    selectedDayColor="#F86241"
+                                    selectedDayTextColor="#fff"
+                                    onDateChange={onDateChange}
+                                    textStyle={{ color: "#000" }}
+                                />
+                                <TouchableOpacity
+                                    style={styles.closeButton}
+                                    onPress={() => setCalendarVisible(false)}
+                                >
+                                    <Text style={styles.closeButtonText}>Done</Text>
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                    </Modal>
 
                     <TouchableOpacity
                         style={styles.imagePreview}
                         onPress={() => setIsVisible(true)}
-                        activeOpacity={0.8}
+                        activeOpacity={0.85}
                     >
                         {imageRows.map((row, rowIndex) => (
                             <View
@@ -159,15 +202,10 @@ const SetPlanScreen = () => {
                                 key={`row-${rowIndex}`}
                             >
                                 {row.map((img, index) => (
-                                    <View key={`${img.uri}-${index}`}>
+                                    <View key={`${img.uri}-${index}`} style={styles.imageWrapper}>
                                         <Image source={{ uri: img.uri }} style={styles.previewImage} />
-                                        <TouchableOpacity onPress={onShare}>
-                                            <Entypo
-                                                style={{ position: "absolute", bottom: 0, right: 0 }}
-                                                name="share"
-                                                size={24}
-                                                color="black"
-                                            />
+                                        <TouchableOpacity onPress={() => onShare(img.uri)} style={styles.shareButton}>
+                                            <Entypo name="share" size={18} color="#fff" />
                                         </TouchableOpacity>
                                     </View>
                                 ))}
@@ -182,11 +220,14 @@ const SetPlanScreen = () => {
                         onRequestClose={() => setIsVisible(false)}
                     />
 
-                    {/* <Carousel
+                    <Carousel
                         ref={ref}
-                        width={width}
-                        height={width / 2}
+                        width={width - 40}
+                        height={200}
                         data={carouselImages}
+                        autoPlay={true}
+                        loop={true}
+                        style={{ alignSelf: "center", marginTop: 20 }}
                         onProgressChange={(_, absoluteProgress) => {
                             progress.value = absoluteProgress;
                         }}
@@ -199,10 +240,9 @@ const SetPlanScreen = () => {
                                 />
                             </View>
                         )}
-                    /> */}
+                    />
                 </View>
 
-                {/* Tabs Header */}
                 <View style={styles.tabHeader}>
                     {["Overview", "Details", "Reviews"].map((tab) => (
                         <TouchableOpacity
@@ -210,44 +250,38 @@ const SetPlanScreen = () => {
                             style={[styles.tabButton, activeTab === tab && styles.activeTab]}
                             onPress={() => setActiveTab(tab)}
                         >
-                            <Text
-                                style={[
-                                    styles.tabText,
-                                    activeTab === tab && styles.activeTabText,
-                                ]}
-                            >
+                            <Text style={[styles.tabText, activeTab === tab && styles.activeTabText]}>
                                 {tab}
                             </Text>
                         </TouchableOpacity>
                     ))}
                 </View>
 
-                {/* Tab Content */}
                 <View style={styles.tabContent}>
                     {activeTab === "Overview" && (
-                        <Text style={styles.text}>
-                            This is the Overview section — show summary info here.
+                        <Text style={styles.tabBodyText}>
+                            Discover breathtaking destinations, unique experiences, and curated adventures designed just for you.
                         </Text>
                     )}
                     {activeTab === "Details" && (
-                        <Text style={styles.text}>
-                            Here are more details about the item, product, or destination.
+                        <Text style={styles.tabBodyText}>
+                            Get detailed information about routes, activities, and travel guides that match your interests.
                         </Text>
                     )}
                     {activeTab === "Reviews" && (
-                        <Text style={styles.text}>
-                            User reviews and comments would appear here.
+                        <Text style={styles.tabBodyText}>
+                            See what fellow travelers have said about their experiences and plan confidently.
                         </Text>
                     )}
                 </View>
             </View>
-            {/* Map Section */}
+
             <View style={styles.mapContainer}>
                 <Text style={styles.mapTitle}>Explore Destination</Text>
                 <MapView
                     style={styles.map}
                     initialRegion={{
-                        latitude: 23.8103, // Example: Dhaka
+                        latitude: 23.8103,
                         longitude: 90.4125,
                         latitudeDelta: 0.05,
                         longitudeDelta: 0.05,
@@ -260,7 +294,6 @@ const SetPlanScreen = () => {
                     />
                 </MapView>
             </View>
-
         </ScrollView>
     );
 };
@@ -269,60 +302,113 @@ export default SetPlanScreen;
 
 const styles = StyleSheet.create({
     scrollContainer: { flex: 1, backgroundColor: "#F86241" },
-    container: { flex: 1, alignItems: "baseline", justifyContent: "flex-start", paddingTop: 100 },
-    headline: { fontSize: 30, fontWeight: "600", color: "#fff" },
-    description: { fontSize: 14, color: "#fff", fontWeight: "300", marginRight: 50 },
+    container: { flex: 1, paddingTop: 90 },
+    header: { paddingHorizontal: 24 },
+    headline: { fontSize: 30, fontWeight: "700", color: "#fff", marginBottom: 8 },
+    description: { fontSize: 15, color: "#fff", opacity: 0.9, marginBottom: 20 },
     inputContainer: {
-        alignItems: "baseline",
-        justifyContent: "flex-start",
         backgroundColor: "#fff",
         paddingHorizontal: 20,
-        paddingTop: 20,
-        paddingBottom: 60,
-        width: "100%",
+        paddingVertical: 20,
+        borderTopLeftRadius: 30,
+        borderTopRightRadius: 30,
         marginTop: 20,
+    },
+    dropdown: {
+        height: 50,
+        borderColor: "#ccc",
+        borderWidth: 1,
+        borderRadius: 12,
+        paddingHorizontal: 12,
+        marginBottom: 20,
+    },
+    placeholderStyle: { fontSize: 14, color: "#888" },
+    selectedTextStyle: { fontSize: 14, color: "#333" },
+    inputSearchStyle: { height: 40, fontSize: 14 },
+    icon: { marginRight: 10 },
+    dateFieldsContainer: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        marginTop: 10,
+        gap: 10,
+    },
+    dateField: {
+        flex: 1,
+        flexDirection: "row",
+        alignItems: "center",
+        borderWidth: 1,
+        borderColor: "#ccc",
+        borderRadius: 10,
+        padding: 12,
+        gap: 8,
+    },
+    dateFieldText: { color: "#333", fontSize: 14, fontWeight: "500" },
+    modalContainer: {
+        flex: 1,
+        justifyContent: "flex-end",
+        backgroundColor: "rgba(0,0,0,0.5)",
+    },
+    calendarModal: {
+        backgroundColor: "#fff",
         borderTopLeftRadius: 20,
         borderTopRightRadius: 20,
-        gap: 25,
+        padding: 20,
     },
-    imagePreview: { width: "100%", borderRadius: 12, overflow: "hidden" },
+    modalTitle: { fontSize: 18, fontWeight: "600", color: "#333", marginBottom: 10 },
+    closeButton: {
+        backgroundColor: "#F86241",
+        paddingVertical: 12,
+        borderRadius: 10,
+        marginTop: 10,
+        alignItems: "center",
+    },
+    closeButtonText: { color: "#fff", fontWeight: "600", fontSize: 16 },
+    imagePreview: { width: "100%", borderRadius: 12, overflow: "hidden", marginTop: 20 },
     imageRow: { flexDirection: "row", justifyContent: "space-between", marginBottom: 12 },
     imageRowLast: { marginBottom: 0 },
-    previewImage: { width: width / 3 - 16, aspectRatio: 1, borderRadius: 8 },
+    imageWrapper: { position: "relative" },
+    previewImage: { width: width / 3 - 14, aspectRatio: 1, borderRadius: 8 },
+    shareButton: {
+        position: "absolute",
+        bottom: 6,
+        right: 6,
+        backgroundColor: "#F86241",
+        padding: 6,
+        borderRadius: 20,
+    },
+    carouselSlide: { borderRadius: 12, overflow: "hidden" },
+    carouselImage: { width: "100%", height: "100%", borderRadius: 12 },
     tabHeader: {
         flexDirection: "row",
         justifyContent: "space-around",
         borderBottomWidth: 1,
         borderColor: "#ddd",
-        paddingBottom: 10,
-        marginTop: 20,
+        paddingVertical: 10,
+        backgroundColor: "#fff",
     },
     tabButton: { paddingVertical: 8, paddingHorizontal: 20, borderRadius: 20 },
     activeTab: { backgroundColor: "#F86241" },
     tabText: { color: "#6a707c", fontWeight: "500" },
     activeTabText: { color: "#fff", fontWeight: "600" },
-    tabContent: { padding: 20 },
-    text: { fontSize: 16, color: "#333" },
+    tabContent: { backgroundColor: "#fff", paddingHorizontal: 24, paddingVertical: 20 },
+    tabBodyText: { fontSize: 16, color: "#333", lineHeight: 24 },
     mapContainer: {
         width: "100%",
-        height: 350,
+        height: 360,
+        borderRadius: 20,
+        overflow: "hidden",
+        backgroundColor: "#fff",
         marginTop: 30,
         marginBottom: 60,
-        borderRadius: 15,
-        overflow: "hidden",
-        alignSelf: "center",
-        backgroundColor: "#fff",
     },
     mapTitle: {
         fontSize: 18,
         fontWeight: "600",
         color: "#333",
-        paddingVertical: 10,
         textAlign: "center",
+        paddingVertical: 10,
+        borderBottomWidth: 1,
+        borderColor: "#eee",
     },
-    map: {
-        width: "100%",
-        height: "100%",
-    },
-
+    map: { width: "100%", height: "100%" },
 });

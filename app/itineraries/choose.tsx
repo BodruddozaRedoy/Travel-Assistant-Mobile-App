@@ -1,7 +1,13 @@
-import { NativeSyntheticEvent, StyleSheet, Text, TextInput, TextInputKeyPressEventData, TouchableOpacity, View } from "react-native";
-import React, { useEffect, useRef, useState } from "react";
+import AntDesign from "@expo/vector-icons/AntDesign";
 import { router } from "expo-router";
-import AntDesign from '@expo/vector-icons/AntDesign';
+import React from "react";
+import {
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View
+} from "react-native";
 
 const ChooseScreen = () => {
     const chooseList = [
@@ -13,87 +19,117 @@ const ChooseScreen = () => {
         "Local Festivals & Events",
         "Food & Drink",
         "Swimming",
-        "Camping in Nature"
-    ]
+        "Camping in Nature",
+    ];
 
     return (
         <View style={styles.container}>
-            <View style={{ marginLeft: 20 }}>
+            <View style={styles.header}>
                 <Text style={styles.headline}>Let's Personalize Your Adventure</Text>
                 <Text style={styles.description}>
                     Help us understand your travel style so we can create perfect itineraries just for you.
                 </Text>
             </View>
 
-            <View style={styles.inputContainer}>
-                <Text style={{ fontSize: 30, fontWeight: 600, textAlign: "center" }}>Choose What you like!</Text>
-                <View style={{ flex: 1, flexDirection: "row", gap: 5, alignItems: "baseline", justifyContent: "flex-start", flexWrap: "wrap" }}>
-                    {
-                        chooseList?.map((list, index) => (
-                            <View key={index} style={{ borderWidth: 1, borderRadius: 30, paddingVertical: 10, paddingHorizontal: 20, flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "center" }}>
-                                <Text style={{ fontWeight: 600, fontSize: 15, }}>{list}</Text>
-                                <AntDesign name="plus" size={24} color="black" />
-                            </View>
-                        ))
-                    }
-                </View>
-            </View>
-            <TouchableOpacity
-                style={styles.registerBtn}
-                onPress={() => router.replace("/itineraries/setPlan")}
-            >
-                <Text style={styles.registerText}>Log In</Text>
-            </TouchableOpacity>
-        </View>
-    )
-}
+            <View style={styles.contentContainer}>
+                <Text style={styles.subHeading}>Choose what you like!</Text>
 
-export default ChooseScreen
+                <ScrollView
+                    contentContainerStyle={styles.choicesContainer}
+                    showsVerticalScrollIndicator={false}
+                >
+                    {chooseList.map((item, index) => (
+                        <TouchableOpacity key={index} style={styles.choiceItem}>
+                            <Text style={styles.choiceText}>{item}</Text>
+                            <AntDesign name="plus" size={18} color="#F86241" />
+                        </TouchableOpacity>
+                    ))}
+                </ScrollView>
+
+                <TouchableOpacity
+                    style={styles.nextButton}
+                    onPress={() => router.replace("/itineraries/setPlan")}
+                >
+                    <Text style={styles.nextButtonText}>Continue</Text>
+                </TouchableOpacity>
+            </View>
+        </View>
+    );
+};
+
+export default ChooseScreen;
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        alignItems: "baseline",
-        justifyContent: "flex-start",
         backgroundColor: "#F86241",
-        paddingTop: 100
+        paddingTop: 80,
+    },
+    header: {
+        paddingHorizontal: 24,
     },
     headline: {
-        fontSize: 30,
-        fontWeight: "600",
+        fontSize: 28,
+        fontWeight: "700",
         color: "#fff",
+        marginBottom: 10,
     },
     description: {
-        fontSize: 14,
+        fontSize: 15,
         color: "#fff",
-        fontWeight: "300",
-        marginRight: 50
+        opacity: 0.9,
+        marginRight: 40,
     },
-    inputContainer: {
+    contentContainer: {
         flex: 1,
-        alignItems: "baseline",
-        justifyContent: "flex-start",
         backgroundColor: "#fff",
-        paddingHorizontal: 20,
-        paddingTop: 20,
-        paddingBottom: 60,
-        width: "100%",
-        marginTop: 20,
-        borderTopLeftRadius: 20,
-        borderTopRightRadius: 20,
-        gap: 15
+        borderTopLeftRadius: 30,
+        borderTopRightRadius: 30,
+        marginTop: 30,
+        padding: 15,
     },
-    registerBtn: {
-        backgroundColor: "#F86241",
-        paddingVertical: 15,
-        borderRadius: 30,
-        width: "100%",
-        alignItems: "center",
-        marginTop: 20
-    },
-    registerText: {
-        color: "#fff",
+    subHeading: {
+        fontSize: 22,
         fontWeight: "600",
+        textAlign: "center",
+        color: "#222",
+        marginBottom: 20,
+    },
+    choicesContainer: {
+        flexDirection: "row",
+        flexWrap: "wrap",
+        justifyContent: "flex-start",
+        gap: 5,
+        paddingBottom: 30,
+    },
+    choiceItem: {
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "center",
+        borderWidth: 1.5,
+        borderColor: "#F86241",
+        borderRadius: 30,
+        paddingVertical: 10,
+        paddingHorizontal: 16,
+        margin: 5,
+        backgroundColor: "#fff",
+    },
+    choiceText: {
+        fontSize: 15,
+        fontWeight: "500",
+        color: "#222",
+        marginRight: 8,
+    },
+    nextButton: {
+        backgroundColor: "#F86241",
+        paddingVertical: 14,
+        borderRadius: 30,
+        alignItems: "center",
+        marginTop: 10,
+    },
+    nextButtonText: {
+        color: "#fff",
+        fontWeight: "700",
         fontSize: 16,
     },
-})
+});

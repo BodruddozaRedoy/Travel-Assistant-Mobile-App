@@ -1,16 +1,16 @@
-import { StyleSheet, Text, TextInput, View, TouchableOpacity } from "react-native";
-import React, { useState } from "react";
-import { router } from "expo-router";
 import AntDesign from "@expo/vector-icons/AntDesign";
-import Entypo from "@expo/vector-icons/Entypo";
 import Feather from '@expo/vector-icons/Feather';
+import { router } from "expo-router";
+import React, { useState } from "react";
+import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 
 const RegisterScreen = () => {
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
   return (
-    <View style={styles.container}>
+    <ScrollView showsVerticalScrollIndicator={false}>
+      <View style={styles.container}>
       <View style={{ marginLeft: 20 }}>
         <Text style={styles.headline}>Create Your Account</Text>
         <Text style={styles.description}>
@@ -94,6 +94,7 @@ const RegisterScreen = () => {
         </View>
       </View>
     </View>
+    </ScrollView>
   )
 }
 
