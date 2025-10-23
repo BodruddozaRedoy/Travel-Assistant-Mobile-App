@@ -1,27 +1,71 @@
+
+import { Alert, StyleSheet, Text, TextInput, View, TouchableOpacity, ActivityIndicator } from "react-native";
+import React, { useState } from "react";
+import { router } from "expo-router";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import Feather from "@expo/vector-icons/Feather";
-import { router } from "expo-router";
-import { useState } from "react";
-import { StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { AxiosPublic } from "@/config/axios";
+
 
 const LoginScreen = () => {
     const [showPassword, setShowPassword] = useState(false);
     const [rememberMe, setRememberMe] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const [user, setUser] = useState({
+        email: "",
+        password: "",
+    });
+
+    const handleLogin = async () => {
+        if (!user.email || !user.password) {
+            Alert.alert("Missing Fields", "Please fill in both email and password.");
+            return;
+        }
+
+        try {
+            setLoading(true);
+
+            const res = await AxiosPublic.post("/accounts/api/v1/login", user);
+
+            console.log("Login success:", res.data);
+
+            Alert.alert("Success", "You have successfully logged in!", [
+                {
+                    text: "OK",
+                    onPress: () => router.replace("/itineraries/choose"),
+                },
+            ]);
+        } catch (error: any) {
+            console.log("Login error:", error.response?.data || error.message);
+            if (error.response?.data?.message) {
+                Alert.alert("Login Failed", error.response.data.message);
+            } else {
+                Alert.alert("Error", "Something went wrong. Please try again.");
+            }
+        } finally {
+            setLoading(false);
+        }
+    };
 
     return (
         <View style={styles.container}>
             <View style={{ marginLeft: 20 }}>
                 <Text style={styles.headline}>Welcome Back!</Text>
                 <Text style={styles.description}>
-                    Log in to continue your personalized travel journey. Access your itineraries,and recommendations anytime.
+                    Log in to continue your personalized travel journey. Access your
+                    itineraries and recommendations anytime.
                 </Text>
             </View>
 
             <View style={styles.inputContainer}>
-
                 <View style={{ width: "100%" }}>
                     <Text>Email Address</Text>
-                    <TextInput style={styles.input} placeholder="Enter email address" />
+                    <TextInput
+                        style={styles.input}
+                        placeholder="Enter email address"
+                        value={user.email}
+                        onChangeText={(e) => setUser({ ...user, email: e })}
+                    />
                 </View>
 
                 <View style={{ width: "100%", position: "relative" }}>
@@ -30,6 +74,8 @@ const LoginScreen = () => {
                         style={styles.input}
                         placeholder="* * * * * *"
                         secureTextEntry={!showPassword}
+                        value={user.password}
+                        onChangeText={(e) => setUser({ ...user, password: e })}
                     />
                     <Feather
                         name={showPassword ? "eye" : "eye-off"}
@@ -46,35 +92,60 @@ const LoginScreen = () => {
                         onPress={() => setRememberMe((prev) => !prev)}
                         activeOpacity={0.7}
                     >
-                        <View style={[styles.checkbox, rememberMe && styles.checkboxSelected]}>
+                        <View
+                            style={[styles.checkbox, rememberMe && styles.checkboxSelected]}
+                        >
                             {rememberMe && <Feather name="check" size={14} color="#fff" />}
                         </View>
                         <Text style={styles.rememberText}>Remember me</Text>
                     </TouchableOpacity>
+
                     <TouchableOpacity
-                        onPress={() =>
-                            router.push("/auth/forget_pass")
-                        }
+                        onPress={() => router.push("/auth/forget_pass")}
                         activeOpacity={0.7}
                     >
                         <Text style={styles.forgotText}>Forgot Password?</Text>
                     </TouchableOpacity>
                 </View>
 
-
-
                 <TouchableOpacity
-                    style={styles.registerBtn}
-                    onPress={() => router.replace("/itineraries/choose")}
+                    style={[styles.registerBtn, loading && { opacity: 0.7 }]}
+                    onPress={handleLogin}
+                    disabled={loading}
                 >
-                    <Text style={styles.registerText}>Log In</Text>
+                    {loading ? (
+                        <ActivityIndicator color="#fff" />
+                    ) : (
+                            <Text style={styles.registerText}>Log In</Text>
+                    )}
                 </TouchableOpacity>
 
                 <View style={{ width: "100%", marginTop: 30, height: 40 }}>
-                    <View style={{ flex: 1, flexDirection: "row", justifyContent: "center", alignItems: "center", width: "100%" }}>
-                        <View style={{ height: 2, backgroundColor: "#808182", width: 100 }}></View>
-                        <Text style={{ fontSize: 15, fontWeight: "500", color: "#6a707c", paddingHorizontal: 10 }}>Or Login with</Text>
-                        <View style={{ height: 2, backgroundColor: "#808182", width: 100 }}></View>
+                    <View
+                        style={{
+                            flex: 1,
+                            flexDirection: "row",
+                            justifyContent: "center",
+                            alignItems: "center",
+                            width: "100%",
+                        }}
+                    >
+                        <View
+                            style={{ height: 2, backgroundColor: "#808182", width: 100 }}
+                        ></View>
+                        <Text
+                            style={{
+                                fontSize: 15,
+                                fontWeight: "500",
+                                color: "#6a707c",
+                                paddingHorizontal: 10,
+                            }}
+                        >
+                            Or Login with
+                        </Text>
+                        <View
+                            style={{ height: 2, backgroundColor: "#808182", width: 100 }}
+                        ></View>
                     </View>
                 </View>
 
@@ -90,17 +161,21 @@ const LoginScreen = () => {
                 <View style={{ alignItems: "center", width: "100%" }}>
                     <Text style={{ fontSize: 18, textAlign: "center" }}>
                         Don’t have any account?{" "}
-                        <Text onPress={() => router.push("/auth/register")} style={{ color: "#F86241", borderBottomWidth: 2 }}>
+                        <Text
+                            onPress={() => router.push("/auth/register")}
+                            style={{ color: "#F86241", borderBottomWidth: 2 }}
+                        >
                             Register
                         </Text>
                     </Text>
                 </View>
             </View>
         </View>
-    )
-}
+    );
+};
 
-export default LoginScreen
+export default LoginScreen;
+
 
 const styles = StyleSheet.create({
     container: {
