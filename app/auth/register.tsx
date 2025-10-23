@@ -1,7 +1,8 @@
-import { StyleSheet, Text, TextInput, View, TouchableOpacity } from 'react-native'
-import React, { useState } from 'react'
-import { router } from 'expo-router'
-import AntDesign from '@expo/vector-icons/AntDesign';
+import AntDesign from "@expo/vector-icons/AntDesign";
+import Feather from '@expo/vector-icons/Feather';
+import { router } from "expo-router";
+import { useState } from "react";
+import { StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 
 const RegisterScreen = () => {
   const [showPassword, setShowPassword] = useState(false)
@@ -19,22 +20,22 @@ const RegisterScreen = () => {
       <View style={styles.inputContainer}>
         <View style={{ width: "100%" }}>
           <Text>Full Name</Text>
-          <TextInput style={styles.input} placeholder='Enter full name' />
+          <TextInput style={styles.input} placeholder="Enter full name" />
         </View>
         <View style={{ width: "100%" }}>
           <Text>Email Address</Text>
-          <TextInput style={styles.input} placeholder='Enter email address' />
+          <TextInput style={styles.input} placeholder="Enter email address" />
         </View>
 
         <View style={{ width: "100%", position: "relative" }}>
           <Text>Password</Text>
           <TextInput
             style={styles.input}
-            placeholder='* Enter password'
+            placeholder="* * * * * *"
             secureTextEntry={!showPassword}
           />
-          <AntDesign
-            name={showPassword ? "eye" : "eye-with-line"}
+          <Feather
+            name={showPassword ? "eye" : "eye-off"}
             size={24}
             color="#6a707c"
             style={styles.eyeIcon}
@@ -46,21 +47,21 @@ const RegisterScreen = () => {
           <Text>Confirm Password</Text>
           <TextInput
             style={styles.input}
-            placeholder='* Confirm password'
+            placeholder="* * * * * *"
             secureTextEntry={!showConfirmPassword}
           />
-          <AntDesign
-            name={showConfirmPassword ? "eye" : "eyeo"}
+          <Feather
+            name={showPassword ? "eye" : "eye-off"}
             size={24}
             color="#6a707c"
             style={styles.eyeIcon}
-            onPress={() => setShowConfirmPassword(!showConfirmPassword)}
+            onPress={() => setShowPassword(!showPassword)}
           />
         </View>
 
         <TouchableOpacity
           style={styles.registerBtn}
-          onPress={() => router.replace("/auth/auth_screen")}
+          onPress={() => router.replace("/auth/login")}
         >
           <Text style={styles.registerText}>Register</Text>
         </TouchableOpacity>
@@ -68,7 +69,7 @@ const RegisterScreen = () => {
         <View style={{ width: "100%", marginTop: 30, height: 40 }}>
           <View style={{ flex: 1, flexDirection: "row", justifyContent: "center", alignItems: "center", width: "100%" }}>
             <View style={{ height: 2, backgroundColor: "#808182", width: 100 }}></View>
-            <Text style={{ fontSize: 15, fontWeight: 500, color: "#6a707c", paddingHorizontal: 10 }}>Or Login with</Text>
+            <Text style={{ fontSize: 15, fontWeight: "500", color: "#6a707c", paddingHorizontal: 10 }}>Or Login with</Text>
             <View style={{ height: 2, backgroundColor: "#808182", width: 100 }}></View>
           </View>
         </View>
@@ -84,7 +85,7 @@ const RegisterScreen = () => {
 
         <View style={{ alignItems: "center", width: "100%" }}>
           <Text style={{ fontSize: 18, textAlign: "center" }}>
-            Already have an account?{' '}
+            Already have an account?{" "}
             <Text onPress={() => router.push("/auth/login")} style={{ color: "#F86241", borderBottomWidth: 2 }}>
               Log In
             </Text>
@@ -107,13 +108,13 @@ const styles = StyleSheet.create({
   },
   headline: {
     fontSize: 30,
-    fontWeight: 600,
+    fontWeight: "600",
     color: "#fff",
   },
   description: {
     fontSize: 14,
     color: "#fff",
-    fontWeight: 300,
+    fontWeight: "300",
     marginRight: 50
   },
   inputContainer: {
@@ -160,13 +161,14 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
-    gap: 20,
-    marginTop: 10
+    marginTop: 10,
+    alignSelf: "center"
   },
   socialIcon: {
     borderWidth: 1,
     borderColor: "#6a707c",
     padding: 20,
-    borderRadius: 10
+    borderRadius: 10,
+    marginHorizontal: 10
   }
 })
