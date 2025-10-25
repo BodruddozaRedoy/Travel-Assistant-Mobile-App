@@ -127,7 +127,7 @@ const LoginScreen = () => {
 
                 <TouchableOpacity
                     style={[styles.registerBtn, loading && { opacity: 0.7 }]}
-                    onPress={() => router.replace("/(tabs)/home")}
+                    onPress={() => router.replace("/itineraries/choose")}
                     disabled={loading}
                 >
                     {loading ? (

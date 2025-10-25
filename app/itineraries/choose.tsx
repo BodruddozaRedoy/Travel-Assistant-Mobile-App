@@ -1,15 +1,22 @@
 import AntDesign from "@expo/vector-icons/AntDesign";
-import BottomSheet from "@gorhom/bottom-sheet";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
     ScrollView,
     StyleSheet,
     Text,
     TouchableOpacity,
     View,
+    Dimensions,
 } from "react-native";
+import RBSheet from "react-native-raw-bottom-sheet";
+
+interface User {
+    name?: string;
+}
+
+const { height: SCREEN_HEIGHT } = Dimensions.get("window");
 
 const ChooseScreen = () => {
     const chooseList = [
@@ -25,21 +32,22 @@ const ChooseScreen = () => {
     ];
 
     const [selected, setSelected] = useState<string[]>([]);
-    const sheetRef = useRef<BottomSheet>(null);
-    const [user, setUser] = useState({})
+    const refRBSheet = useRef<any>(null);
+    const [user, setUser] = useState<User | null>(null);
 
     useEffect(() => {
         const getUser = async () => {
-            const user = await AsyncStorage.getItem("user")
-            setUser(JSON.parse(user))
-        }
-        getUser()
-    }, [])
-
-    console.log(user)
-
-
-    const snapPoints = useMemo(() => ["40%", "80%"], []);
+            try {
+                const userString = await AsyncStorage.getItem("user");
+                if (userString) {
+                    setUser(JSON.parse(userString));
+                }
+            } catch (error) {
+                console.error("Error loading user:", error);
+            }
+        };
+        getUser();
+    }, []);
 
     const toggleChoice = (item: string) => {
         setSelected((prev) =>
@@ -47,6 +55,14 @@ const ChooseScreen = () => {
                 ? prev.filter((c) => c !== item)
                 : [...prev, item]
         );
+    };
+
+    const handleEditPress = () => {
+        refRBSheet.current?.open();
+    };
+
+    const handleDone = () => {
+        refRBSheet.current?.close();
     };
 
     return (
@@ -59,7 +75,7 @@ const ChooseScreen = () => {
             </View>
 
             <View style={styles.contentContainer}>
-                <Text>{user.name}</Text>
+                {user?.name && <Text style={styles.userName}>{user.name}</Text>}
                 <Text style={styles.subHeading}>Your selected interests</Text>
 
                 <ScrollView
@@ -67,7 +83,7 @@ const ChooseScreen = () => {
                     showsVerticalScrollIndicator={false}
                 >
                     {selected.length === 0 ? (
-                        <Text style={styles.emptyText}>No selections yet — tap “Edit” to add some!</Text>
+                        <Text style={styles.emptyText}>No selections yet — tap "Edit" to add some!</Text>
                     ) : (
                         selected.map((item, index) => (
                             <View key={index} style={[styles.choiceItem, styles.selectedChoice]}>
@@ -81,7 +97,7 @@ const ChooseScreen = () => {
                 <View style={styles.buttonRow}>
                     <TouchableOpacity
                         style={[styles.actionButton, styles.editButton]}
-                        onPress={() => sheetRef.current?.expand()}
+                        onPress={handleEditPress}
                     >
                         <AntDesign name="edit" size={18} color="#F86241" />
                         <Text style={[styles.actionText, { color: "#F86241" }]}>Edit</Text>
@@ -96,12 +112,45 @@ const ChooseScreen = () => {
                 </View>
             </View>
 
-            <BottomSheet ref={sheetRef} index={-1} snapPoints={snapPoints} enablePanDownToClose>
-                <View style={styles.sheetContainer}>
-                    <Text style={styles.sheetHeading}>Choose your interests</Text>
+            <RBSheet
+                ref={refRBSheet}
+                height={SCREEN_HEIGHT * 0.7}
+                openDuration={300}
+                closeDuration={250}
+                closeOnPressMask={true}
+                closeOnPressBack={true}
+                // dragFromTopOnly={true}
+                customStyles={{
+                    wrapper: {
+                        backgroundColor: "rgba(0, 0, 0, 0.5)",
+                    },
+                    draggableIcon: {
+                        backgroundColor: "#DDD",
+                        width: 60,
+                        height: 6,
+                        marginVertical: 8,
+                    },
+                    container: {
+                        borderTopLeftRadius: 30,
+                        borderTopRightRadius: 30,
+                        backgroundColor: "#fff",
+                    },
+                }}
+                draggable={true}
+            >
+                <View style={styles.sheetWrapper}>
+                    <View style={styles.sheetHeader}>
+                        <Text style={styles.sheetHeading}>Choose your interests</Text>
+                        <TouchableOpacity onPress={handleDone} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+                            <AntDesign name="close" size={24} color="#222" />
+                        </TouchableOpacity>
+                    </View>
+
                     <ScrollView
+                        style={styles.sheetScrollView}
                         contentContainerStyle={styles.sheetChoices}
                         showsVerticalScrollIndicator={false}
+                        bounces={true}
                     >
                         {chooseList.map((item, index) => {
                             const isSelected = selected.includes(item);
@@ -110,15 +159,15 @@ const ChooseScreen = () => {
                                     key={index}
                                     style={[
                                         styles.sheetItem,
-                                        isSelected && { backgroundColor: "#F86241", borderColor: "#F86241" },
+                                        isSelected && styles.sheetItemSelected,
                                     ]}
                                     onPress={() => toggleChoice(item)}
-                                    activeOpacity={0.8}
+                                    activeOpacity={0.7}
                                 >
                                     <Text
                                         style={[
                                             styles.sheetItemText,
-                                            { color: isSelected ? "#fff" : "#222" },
+                                            isSelected && styles.sheetItemTextSelected,
                                         ]}
                                     >
                                         {item}
@@ -132,8 +181,18 @@ const ChooseScreen = () => {
                             );
                         })}
                     </ScrollView>
+
+                    <View style={styles.buttonContainer}>
+                        <TouchableOpacity
+                            style={styles.doneButton}
+                            onPress={handleDone}
+                            activeOpacity={0.8}
+                        >
+                            <Text style={styles.doneButtonText}>Done</Text>
+                        </TouchableOpacity>
+                    </View>
                 </View>
-            </BottomSheet>
+            </RBSheet>
         </View>
     );
 };
@@ -168,6 +227,12 @@ const styles = StyleSheet.create({
         borderTopRightRadius: 30,
         marginTop: 30,
         padding: 20,
+    },
+    userName: {
+        fontSize: 16,
+        fontWeight: "600",
+        color: "#222",
+        marginBottom: 10,
     },
     subHeading: {
         fontSize: 22,
@@ -237,23 +302,30 @@ const styles = StyleSheet.create({
         fontSize: 15,
         marginLeft: 8,
     },
-    sheetContainer: {
+    sheetWrapper: {
         flex: 1,
         paddingHorizontal: 20,
-        paddingTop: 10,
+    },
+    sheetHeader: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
+        paddingTop: 5,
+        paddingBottom: 15,
     },
     sheetHeading: {
-        fontSize: 18,
+        fontSize: 20,
         fontWeight: "700",
         color: "#222",
-        textAlign: "center",
-        marginBottom: 16,
+    },
+    sheetScrollView: {
+        flex: 1,
     },
     sheetChoices: {
         flexDirection: "row",
         flexWrap: "wrap",
         justifyContent: "flex-start",
-        paddingBottom: 30,
+        paddingBottom: 10,
     },
     sheetItem: {
         flexDirection: "row",
@@ -267,9 +339,32 @@ const styles = StyleSheet.create({
         margin: 5,
         backgroundColor: "#fff",
     },
+    sheetItemSelected: {
+        backgroundColor: "#F86241",
+        borderColor: "#F86241",
+    },
     sheetItemText: {
         fontSize: 15,
         fontWeight: "500",
         marginRight: 8,
+        color: "#222",
+    },
+    sheetItemTextSelected: {
+        color: "#fff",
+    },
+    buttonContainer: {
+        paddingTop: 15,
+        paddingBottom: 20,
+    },
+    doneButton: {
+        backgroundColor: "#F86241",
+        borderRadius: 30,
+        paddingVertical: 16,
+        alignItems: "center",
+    },
+    doneButtonText: {
+        color: "#fff",
+        fontSize: 16,
+        fontWeight: "700",
     },
 });
